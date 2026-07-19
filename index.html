@@ -169,7 +169,7 @@ background
 .loading-bar-fill{
   height: 100%; width: 0%; border-radius: 3px;
   background: linear-gradient(90deg, var(--pink-deep), var(--gold), var(--sage));
-  animation: loadingFill 3s linear forwards;
+  animation: loadingFill 4s linear forwards;
 }
 @keyframes loadingFill{ from{ width: 0%; } to{ width: 100%; } }
 
@@ -669,7 +669,33 @@ section{ position:relative; z-index:3; }
 .envelope.open .envelope-flap{ transform: rotateX(180deg); z-index: 1; }
 .envelope.open .envelope-seal{ opacity: 0; }
 .envelope.open .envelope-paper{ height: 78%; opacity: 1; transform: translateY(-14%); }
-.envelope-hint{ margin-top: 18px; font-family: var(--font-hand); font-size: 1.1rem; color: var(--pink-deep); }
+.envelope-hint{ margin-top: 18px; font-family: var(--font-hand); font-size: 1.1rem; color: var(--pink-deep); transition: color 0.3s ease; }
+.envelope-hint.warn{ color: var(--pink-deep); animation: popText 0.45s ease; }
+
+/* locked state — envelope can't be opened until the candles are out */
+.envelope.locked{ filter: grayscale(0.3) brightness(0.98); }
+.envelope.locked .envelope-pocket{ opacity: 0.88; }
+.envelope-lock-badge{
+  position: absolute; top: -12px; right: -12px; width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(145deg, #fffdf8, var(--cream-deep)); z-index: 6;
+  display:flex; align-items:center; justify-content:center; font-size: 1.05rem;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.2), 0 0 0 3px rgba(255,255,255,0.7);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.envelope.unlocked .envelope-lock-badge{ opacity: 0; transform: scale(0.4) rotate(25deg); pointer-events: none; }
+@keyframes envelopeShake{
+  0%,100%{ transform: translateX(0) rotate(0); }
+  20%{ transform: translateX(-9px) rotate(-2.5deg); }
+  40%{ transform: translateX(8px) rotate(2.5deg); }
+  60%{ transform: translateX(-6px) rotate(-1.5deg); }
+  80%{ transform: translateX(5px) rotate(1.5deg); }
+}
+.envelope.shake{ animation: envelopeShake 0.5s ease; }
+@keyframes envelopeReadyGlow{
+  0%,100%{ box-shadow: 0 22px 50px var(--shadow); }
+  50%{ box-shadow: 0 22px 50px var(--shadow), 0 0 0 10px rgba(238,194,127,0.22); }
+}
+.envelope.unlocked .envelope-pocket{ animation: envelopeReadyGlow 2.2s ease-in-out infinite; }
 
 .letter-card{
   position: relative; width:100%; max-width: 680px;
@@ -957,19 +983,20 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
 <section class="letter-section" id="letterSection">
 
   <div class="envelope-scene reveal" id="envelopeScene">
-    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Open the letter">
+    <div class="envelope locked" id="envelope" role="button" tabindex="0" aria-label="Open the letter — blow out the candles first">
       <div class="envelope-pocket"></div>
       <div class="envelope-paper"></div>
       <div class="envelope-flap"><div class="envelope-seal">🌸</div></div>
+      <div class="envelope-lock-badge" aria-hidden="true">🔒</div>
     </div>
-    <div class="envelope-hint">tap to open</div>
+    <div class="envelope-hint" id="envelopeHint">blow out the candles first 🕯️</div>
   </div>
 
   <div class="letter-card glass-card reveal" id="letterCard" style="display:none;">
     <div class="letter-seal">🌸</div>
-    <div class="letter-heading">a little letter, just for you</div>
+    <div class="letter-heading">a letter for you</div>
     <div class="letter-body" id="letterBody"></div>
-    <div class="letter-signoff" id="letterSignoff">— Janmar</div>
+    <div class="letter-signoff" id="letterSignoff"></div>
   </div>
 </section>
 
@@ -980,7 +1007,7 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
   <div class="sprig-divider"><span class="sprig-dot"></span></div>
 
   <div class="eyebrow">a few small things</div>
-  <h2>little things I wanted to say</h2>
+  <h2>A few little notes</h2>
   <div class="keepsake-sub">tap a card to open it</div>
 
   <div class="keepsake-grid">
@@ -1022,7 +1049,7 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
         </div>
 
         <div class="keepsake-face keepsake-back">
-          Daghan na kog pending Cdramas tungod nimo. But honestly, I'm not complaining HAHAHAH
+          Nakakita kog mga Cdrama edits nga imong gina like sa ig, so murag nadugangan na pud akong watchlist. Pero Honestly, I'm not complaining. HAHAHAH
         </div>
       </div>
     </div>
@@ -1135,7 +1162,7 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
     setTimeout(() => { screen.remove(); }, 750);
   }
 
-  setTimeout(hideLoader, reduce ? 900 : 3000);
+  setTimeout(hideLoader, reduce ? 900 : 4000);
 })();
 </script>
 
@@ -1158,11 +1185,12 @@ const photoSrcs = ['photos/photo1.jpg','photos/photo2.jpg','photos/photo3.jpg','
 /* 👉 Write a little caption for each photo here — same order as photoSrcs above.
    Leave any entry as an empty string '' if you don't want a caption on that one. */
 const photoCaptions = [
-  'Hays no words can explain, nindot kaayo.',
+  'No words can explain it. Nindot jud kaayo. I also love sunsets and sunrises.',
   'That was really thoughtful of your brother :)',
   'I believe sa gingoog ni? I Always wanted to visit that place.',
-  'You looked genuinely happy diri. nya nag libog ko if kinsa jud mas cute sa duha HAHAHAHAH'
+  'You looked genuinely happy diri. Pero murag mas happy ang bata hahahaha'
 ];
+
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lbImg');
 const lbPlaceholder = document.getElementById('lbPlaceholder');
@@ -1416,6 +1444,7 @@ function partyPoppers(originX, originY){
 const flameButtons = document.querySelectorAll('.flame-btn');
 const cakeHint = document.getElementById('cakeHint');
 let snuffed = new Set();
+let candlesBlown = false;
 
 setTimeout(() => cakeHint.classList.add('show'), 1100);
 
@@ -1426,6 +1455,7 @@ flameButtons.forEach(btn => {
     snuffed.add(btn.dataset.flame);
     playCandlePuff();
     if (snuffed.size === flameButtons.length){
+      candlesBlown = true;
       cakeHint.textContent = '🎉 happy birthday! 🎉';
       cakeHint.classList.add('pop');
       const rect = document.getElementById('heroCake').getBoundingClientRect();
@@ -1434,6 +1464,7 @@ flameButtons.forEach(btn => {
       burstConfetti(cx, rect.top + rect.height*0.3);
       partyPoppers(cx, cy);
       playPopperChime();
+      unlockEnvelope();
     }
   });
 });
@@ -1514,13 +1545,38 @@ function typeLetter(){
 }
 
 /* =====================================================
-   ENVELOPE — tap to open, seal cracks then flap lifts
+   ENVELOPE — locked until the candles are blown out;
+   tap to open, seal cracks then flap lifts
 ===================================================== */
 const envelope = document.getElementById('envelope');
 const envelopeScene = document.getElementById('envelopeScene');
 const letterCardEl = document.getElementById('letterCard');
+const envelopeHint = document.getElementById('envelopeHint');
+let envelopeShakeTimer = null;
+
+function unlockEnvelope(){
+  envelope.classList.remove('locked');
+  envelope.classList.add('unlocked');
+  envelope.setAttribute('aria-label', 'Open the letter');
+  envelopeHint.textContent = 'tap to open';
+}
+
+function nudgeLockedEnvelope(){
+  envelope.classList.remove('shake');
+  void envelope.offsetWidth; // restart animation if tapped repeatedly
+  envelope.classList.add('shake');
+  envelopeHint.textContent = 'blow the candles first! 🕯️';
+  envelopeHint.classList.remove('warn');
+  void envelopeHint.offsetWidth;
+  envelopeHint.classList.add('warn');
+  clearTimeout(envelopeShakeTimer);
+  envelopeShakeTimer = setTimeout(() => {
+    envelopeHint.textContent = 'blow out the candles first 🕯️';
+  }, 1800);
+}
 
 function openEnvelope(){
+  if (!candlesBlown){ nudgeLockedEnvelope(); return; }
   if (envelope.classList.contains('open')) return;
   envelope.classList.add('cracking');
   setTimeout(() => { envelope.classList.add('open'); }, 300);
