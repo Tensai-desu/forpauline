@@ -100,9 +100,58 @@ background
 }
 
 /* =====================================================
+   1b. LOADING SCREEN
+===================================================== */
+.loading-screen{
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: linear-gradient(175deg, var(--blush) 0%, var(--cream) 45%, var(--cream-deep) 100%);
+  overflow: hidden;
+  transition: opacity 0.7s ease, visibility 0.7s ease;
+}
+.loading-screen.fade-out{ opacity: 0; visibility: hidden; pointer-events: none; }
+.loading-petals{ position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.loading-petals span{
+  position: absolute; top: -10%; opacity: 0; line-height: 1;
+  animation: loadingPetalFall linear infinite; will-change: transform;
+}
+@keyframes loadingPetalFall{
+  0%{ transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+  10%{ opacity: 0.9; }
+  88%{ opacity: 0.65; }
+  100%{ transform: translateY(112vh) translateX(30px) rotate(210deg); opacity: 0; }
+}
+.loading-content{
+  position: relative; z-index: 2; display:flex; flex-direction:column; align-items:center; gap: 16px;
+  text-align:center; padding: 0 24px;
+}
+.loading-flower{
+  font-size: clamp(2.4rem, 9vw, 3rem);
+  animation: loadingSway 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 8px 16px var(--shadow));
+}
+@keyframes loadingSway{ 0%,100%{ transform: rotate(-8deg) scale(1); } 50%{ transform: rotate(8deg) scale(1.08); } }
+.loading-text{
+  font-family: var(--font-hand); font-size: clamp(1.25rem, 4.6vw, 1.75rem); color: var(--forest-deep);
+  letter-spacing: 0.01em; display:flex; align-items:baseline; gap: 2px; flex-wrap: wrap; justify-content:center;
+}
+.loading-dots span{ display:inline-block; animation: loadingDotBlink 1.4s ease-in-out infinite; }
+.loading-dots span:nth-child(2){ animation-delay: 0.2s; }
+.loading-dots span:nth-child(3){ animation-delay: 0.4s; }
+@keyframes loadingDotBlink{ 0%,80%,100%{ opacity: 0.15; } 40%{ opacity: 1; } }
+.loading-bar-track{
+  width: min(160px, 40vw); height: 3px; border-radius: 3px;
+  background: rgba(92,130,104,0.18); overflow: hidden; margin-top: 2px;
+}
+.loading-bar-fill{
+  height: 100%; width: 0%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--pink-deep), var(--gold), var(--sage));
+  animation: loadingFill 4s linear forwards;
+}
+@keyframes loadingFill{ from{ width: 0%; } to{ width: 100%; } }
+
+/* =====================================================
    3. FLOATING DECORATIVE ELEMENTS
-   Pure CSS drift, no scroll-linked JS — keeps things calm
-   and consistent instead of shifting with scroll position.
 ===================================================== */
 .floaters{ position:fixed; inset:0; pointer-events:none; z-index:2; overflow:hidden; }
 .floaters span{
@@ -138,11 +187,14 @@ background
   z-index: 60; display:flex; flex-direction: column; gap: 14px;
 }
 .dot-nav a{
-  width: 10px; height: 10px; border-radius: 50%;
-  background: rgba(92,130,104,0.28); border: 1px solid var(--forest);
-  transition: all 0.3s ease; cursor:pointer; display:block;
+  width: 20px; height: 20px; display:flex; align-items:center; justify-content:center;
+  font-size: 0.95rem; line-height: 1; cursor:pointer; background: none; border: none;
+  filter: grayscale(1) opacity(0.4); transform: scale(0.82);
+  transition: filter 0.35s ease, transform 0.35s ease;
 }
-.dot-nav a.active{ background: var(--forest); transform: scale(1.35); }
+.dot-nav a::before{ content: '🌸'; display:block; }
+.dot-nav a.active{ filter: grayscale(0) opacity(1); transform: scale(1.15); }
+.dot-nav a:hover{ filter: grayscale(0.3) opacity(0.75); }
 @media (max-width: 900px){ .dot-nav{ display:none; } }
 
 /* =====================================================
@@ -173,14 +225,20 @@ section{ position:relative; z-index:3; }
 
 /* section dividers made of a pressed-flower sprig, ties the keepsake motif together */
 .sprig-divider{
-  display:flex; align-items:center; justify-content:center; gap: 10px;
-  margin: 0 auto 10px; opacity: 0.75; font-size: 1rem; color: var(--sage);
+  display:flex; align-items:center; justify-content:center; gap: 12px;
+  margin: 0 auto 10px; opacity: 0.75;
 }
 .sprig-divider::before, .sprig-divider::after{
   content:''; width: 46px; height:1px; background: linear-gradient(90deg, transparent, var(--sage));
 }
 .sprig-divider::after{ background: linear-gradient(90deg, var(--sage), transparent); }
-
+.sprig-dot{
+  width: 6px; height: 6px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  box-shadow: 0 0 0 3px rgba(238,194,127,0.18);
+  flex-shrink: 0;
+}
 /* =====================================================
    7. PAGE 0 — CALENDAR INTRO
 ===================================================== */
@@ -396,15 +454,15 @@ section{ position:relative; z-index:3; }
   flex-direction: column;
   align-items: center;
   max-width: min(90vw, 720px);
-  margin-top: 30px;
+  margin-top: 8px;
 }
 /* Sits in normal document flow above the headline at every size, so it
    can never overlap "Happy Birthday [Name]" no matter how wide that
    text renders. */
 .photo-stack{
   position: relative;
-  width: 150px; height: 178px;
-  margin: 0 auto 22px;
+  width: 150px; height: 216px;
+  margin: 0 auto 8px;
   transform-origin: top center;
   z-index: 3;
   opacity: 0; animation: fadeUp 1s ease forwards 0.5s; cursor: pointer; touch-action: manipulation;
@@ -483,15 +541,31 @@ section{ position:relative; z-index:3; }
 }
 .lb-arrow:hover{ transform: scale(1.08); }
 .lb-footer{ display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.lb-caption{
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  line-height: 1.4;
+  color: #fff;
+  text-align: center;
+  max-width: min(86vw, 420px);
+  padding: 0 10px;
+}
+.lb-caption:empty{ display: none; }
 .lb-dots{ display: flex; gap: 9px; }
 .lb-dots button{ width: 9px; height: 9px; border-radius: 50%; border: none; background: rgba(255,255,255,0.45); cursor: pointer; padding: 0; transition: all 0.3s ease; }
 .lb-dots button.active{ background: #fff; width: 24px; border-radius: 6px; }
 .lb-counter{ font-family: var(--font-hand); font-size: 1.05rem; color: #fff; background: rgba(255,255,255,0.16); padding: 4px 14px; border-radius: 20px; letter-spacing: 0.04em; }
 @media (max-width: 560px){ .lb-arrow{ width: 42px; height: 42px; font-size: 1.4rem; margin: 0 6px; } .lb-close{ top: 14px; right: 14px; width: 40px; height: 40px; } }
 .stack-hint{
-  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-  width: 150px; text-align: center; white-space: nowrap;
-  font-family: var(--font-hand); font-size: 1rem; color: var(--pink-deep); pointer-events: none;
+  position: relative;
+  width: min(230px, 80vw);
+  margin: 0px auto 0px;
+  text-align: center;
+  white-space: normal;
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  line-height: 1.25;
+  color: var(--pink-deep);
 }
 
 /* tablets (iPad portrait/landscape) */
@@ -506,23 +580,24 @@ section{ position:relative; z-index:3; }
    since it already lives above the title in normal flow. */
 @media (max-width: 640px){
   .hero{ padding: 48px 16px; }
-  .hero-title-wrap{ margin-top: 0; }
+  .hero-title-wrap{ margin-top: 10px; }
+  .eyebrow{ margin-bottom: 4px; }
   .photo-stack{
-    transform: scale(0.78); margin-bottom: 6px;
+    transform: scale(0.78); margin-bottom: -40px;
     animation: fadeUp 1s ease forwards 0.35s;
   }
   .hero-cake{ margin-top: 30px; transform: scale(0.92); }
   .calendar-page{ padding: 48px 16px; }
 }
 @media (max-width: 400px){
-  .photo-stack{ transform: scale(0.68); margin-bottom: -6px; }
+  .photo-stack{ transform: scale(0.68); margin-bottom: -61px; }
   .hero-cake{ transform: scale(0.82); }
 }
 /* small-height phones (landscape or compact devices) */
 @media (max-height: 700px) and (max-width: 640px){
   .calendar-page, .hero{ padding-top: 34px; padding-bottom: 34px; }
   .hero-cake{ margin-top: 18px; }
-  .hero-title-wrap{ margin-top: 0; }
+  .hero-title-wrap{ margin-top: 8px; }
 }
 
 /* =====================================================
@@ -602,35 +677,44 @@ section{ position:relative; z-index:3; }
   font-family: var(--font-display); font-style: italic; font-weight: 600;
   font-size: clamp(1.5rem, 5vw, 2.3rem); color: var(--forest-deep); margin-bottom: 8px; max-width: 560px;
 }
-.keepsake-sub{ font-size: 0.9rem; color: var(--ink); opacity: 0.75; margin-bottom: 32px; }
+.keepsake-sub{ font-size: 0.9rem; color: var(--ink); opacity: 0.7; margin-bottom: 36px; letter-spacing: 0.02em; }
 .keepsake-grid{
-  display:grid; grid-template-columns: repeat(3, minmax(160px, 210px)); gap: 20px; justify-content:center; width:100%; max-width: 720px;
+  display:grid; grid-template-columns: repeat(3, minmax(160px, 210px)); gap: 22px; justify-content:center; width:100%; max-width: 720px;
 }
 @media (max-width: 640px){
-  .keepsake-grid{ grid-template-columns: 1fr; max-width: 340px; gap: 16px; }
-  .keepsake-card{ height: 168px; }
+  .keepsake-grid{ grid-template-columns: 1fr; max-width: 320px; gap: 16px; }
+  .keepsake-card{ height: 172px; }
 }
 .keepsake-card{
-  perspective: 1200px; height: 210px; cursor: pointer; touch-action: manipulation;
+  perspective: 1200px; height: 216px; cursor: pointer; touch-action: manipulation;
 }
 .keepsake-inner{
   position: relative; width:100%; height:100%; transition: transform 0.7s cubic-bezier(.6,.1,.2,1); transform-style: preserve-3d;
 }
 .keepsake-card.flipped .keepsake-inner{ transform: rotateY(180deg); }
+.keepsake-card:hover .keepsake-inner{ transform: translateY(-4px); }
+.keepsake-card.flipped:hover .keepsake-inner{ transform: rotateY(180deg) translateY(-4px); }
 .keepsake-face{
   position: absolute; inset:0; backface-visibility: hidden; border-radius: 20px;
-  display:flex; flex-direction: column; align-items:center; justify-content:center; gap: 10px; padding: 18px;
+  display:flex; flex-direction: column; align-items:center; justify-content:center; gap: 12px; padding: 20px;
   box-shadow: 0 16px 40px var(--shadow); border: 1px solid var(--glass-edge);
+  transition: box-shadow 0.3s ease;
 }
+.keepsake-card:hover .keepsake-face{ box-shadow: 0 20px 48px var(--shadow); }
 .keepsake-front{ background: linear-gradient(160deg, #fff, var(--cream-deep)); }
-.keepsake-front .kf-icon{ font-size: 1.9rem; }
-.keepsake-front .kf-label{ font-family: var(--font-hand); font-size: 1.25rem; color: var(--forest-deep); }
-.keepsake-front .kf-cue{ font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pink-deep); opacity: 0.8; }
+.kf-icon-wrap{ width: 34px; height: 34px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.kf-icon-wrap .pressed-flower{ transform: scale(0.72); margin: 0; animation: none; opacity: 1; }
+.keepsake-front .kf-label{ font-family: var(--font-hand); font-size: 1.3rem; color: var(--forest-deep); }
+.keepsake-front .kf-cue{ font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--pink-deep); opacity: 0.75; }
 .keepsake-back{
   background: linear-gradient(160deg, var(--pink-deep), var(--plum)); color: var(--cream);
-  transform: rotateY(180deg); font-family: var(--font-hand); font-size: 1.15rem; line-height: 1.4;
+  transform: rotateY(180deg); font-family: var(--font-hand); font-size: 1.18rem; line-height: 1.45;
+  position: relative;
 }
-
+.keepsake-back::before{
+  content: '“'; position: absolute; top: 8px; left: 14px;
+  font-family: var(--font-display); font-size: 2.3rem; color: rgba(255,255,255,0.25); line-height: 1;
+}
 /* =====================================================
    11. SONG SECTION
 ===================================================== */
@@ -650,14 +734,51 @@ section{ position:relative; z-index:3; }
    12. CLOSING
 ===================================================== */
 .closing{ display:flex; flex-direction: column; align-items:center; text-align:center; padding: 0 16px 120px; }
-.closing-card{ max-width: 520px; padding: 32px 26px; }
-.closing-card h3{ font-family: var(--font-display); font-style: italic; font-size: clamp(1.4rem, 4vw, 2.1rem); color: var(--forest-deep); margin-bottom: 10px; }
-.closing-card p{ font-size: 0.96rem; opacity:0.85; }
-.balloon-row{ margin-top: 22px; display:flex; gap:14px; font-size:1.6rem; justify-content:center; }
-.balloon-row span{ animation: bobBalloon 3s ease-in-out infinite; }
-.balloon-row span:nth-child(2){ animation-delay:0.4s; } .balloon-row span:nth-child(3){ animation-delay:0.8s; } .balloon-row span:nth-child(4){ animation-delay:1.2s; }
-@keyframes bobBalloon{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-10px); } }
+.closing-card{ max-width: 480px; padding: 44px 30px 38px; }
+.closing-card h3{ font-family: var(--font-display); font-style: italic; font-weight: 600; font-size: clamp(1.5rem, 4.4vw, 2.2rem); color: var(--forest-deep); margin-bottom: 12px; }
+.closing-card p{ font-family: var(--font-hand); font-size: 1.2rem; line-height: 1.5; color: var(--ink); opacity: 0.85; max-width: 360px; margin: 0 auto; }
 
+.site-footer{
+  text-align: center; padding: 4px 20px 46px;
+  font-family: var(--font-hand); font-size: clamp(0.95rem, 2.6vw, 1.1rem);
+  color: var(--forest); opacity: 0.6; letter-spacing: 0.01em; max-width: 480px;
+  margin: 0 auto; line-height: 1.5;
+}
+@media (max-width: 480px){ .site-footer{ padding: 0 18px 40px; } }
+
+.pressed-flower{
+  position: relative;
+  width: 46px; height: 46px;
+  margin: 0 auto 22px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.15s;
+}
+.pressed-flower .petal{
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 17px; height: 24px;
+  margin-top: -24px; margin-left: -8.5px;
+  background: linear-gradient(160deg, var(--pink), var(--pink-deep));
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  transform-origin: bottom center;
+  opacity: 0.92;
+  box-shadow: 0 2px 4px rgba(158,90,115,0.18);
+}
+.pressed-flower .p1{ transform: rotate(0deg); }
+.pressed-flower .p2{ transform: rotate(72deg); background: linear-gradient(160deg, var(--sage), var(--forest)); }
+.pressed-flower .p3{ transform: rotate(144deg); }
+.pressed-flower .p4{ transform: rotate(216deg); background: linear-gradient(160deg, var(--sage), var(--forest)); }
+.pressed-flower .p5{ transform: rotate(288deg); }
+.pressed-flower .center{
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 13px; height: 13px;
+  margin-top: -6.5px; margin-left: -6.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #fff2d8, var(--gold) 60%, var(--gold-deep) 100%);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.16);
+  z-index: 2;
+}
 /* confetti canvas, used for the candle-blow moment */
 #confettiCanvas{ position: fixed; inset:0; z-index: 94; pointer-events:none; }
 
@@ -688,6 +809,18 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
 </style>
 </head>
 <body>
+
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-petals" id="loadingPetals"></div>
+  <div class="loading-content">
+    <div class="loading-flower">🌸</div>
+    <div class="loading-text">
+      <span>Preparing a little birthday gift</span>
+      <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>
+    </div>
+    <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+  </div>
+</div>
 
 <canvas id="confettiCanvas"></canvas>
 <div class="aurora" id="aurora">
@@ -749,12 +882,12 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
   <div class="hero-title-wrap">
     <!-- put photo1–4.jpg next to this file in a "photos" folder to fill these in -->
     <div class="photo-stack" id="photoStack" aria-hidden="false">
-      <div class="stack-hint">A few moments you shared that I thought were really nice.</div>
       <div class="polaroid pl1" data-index="0" tabindex="0" role="button" aria-label="View photo 1"><img src="photos/photo1.jpg" alt="A photo of her" data-fallback="photo1.jpg" onerror="showPlaceholder(this)"></div>
       <div class="polaroid pl2" data-index="1" tabindex="0" role="button" aria-label="View photo 2"><img src="photos/photo2.jpg" alt="A photo of her" data-fallback="photo2.jpg" onerror="showPlaceholder(this)"></div>
       <div class="polaroid pl3" data-index="2" tabindex="0" role="button" aria-label="View photo 3"><img src="photos/photo3.jpg" alt="A photo of her" data-fallback="photo3.jpg" onerror="showPlaceholder(this)"></div>
       <div class="polaroid pl4" data-index="3" tabindex="0" role="button" aria-label="View photo 4"><img src="photos/photo4.jpg" alt="A photo of her" data-fallback="photo4.jpg" onerror="showPlaceholder(this)"></div>
     </div>
+    <div class="stack-hint">A few moments you shared that I thought were really nice.</div>
 
     <h1>Happy Birthday<span class="name">Pauline!</span></h1>
   </div>
@@ -800,61 +933,66 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
 
   <div class="letter-card glass-card reveal" id="letterCard" style="display:none;">
     <div class="letter-seal">🌸</div>
-    <div class="letter-heading">a little letter, just for you</div>
+    <div class="letter-heading">a letter for you</div>
     <div class="letter-body" id="letterBody"></div>
-    <div class="letter-signoff" id="letterSignoff">— Janmar</div>
+    <div class="letter-signoff" id="letterSignoff"></div>
   </div>
 </section>
 
 <!-- =====================================================
-     MEMORY KEEPSAKES — flip cards. Edit the labels and
-     the notes on the back to make these personal.
+     MEMORY KEEPSAKES
 ===================================================== -->
 <section class="keepsake-section" id="keepsakeSection">
-  <div class="sprig-divider">🌿</div>
+  <div class="sprig-divider"><span class="sprig-dot"></span></div>
+
   <div class="eyebrow">a few small things</div>
-  <h2>just a couple of thoughts</h2>
+  <h2>little things I wanted to say</h2>
   <div class="keepsake-sub">tap a card to open it</div>
 
   <div class="keepsake-grid">
+
+    <!-- Card 1 -->
     <div class="keepsake-card" data-card="1" tabindex="0" role="button" aria-label="Flip card: why today">
       <div class="keepsake-inner">
         <div class="keepsake-face keepsake-front">
-          <div class="kf-icon">🌸</div>
           <div class="kf-label">why today</div>
           <div class="kf-cue">tap to open</div>
         </div>
+
         <div class="keepsake-face keepsake-back">
-          I noticed it was your birthday, and it felt like a good, low-pressure reason to start a convo hahahahah
+          I thought I'd make something a little different instead of just saying, "Happy Birthday."
         </div>
       </div>
     </div>
 
+    <!-- Card 2 -->
     <div class="keepsake-card" data-card="2" tabindex="0" role="button" aria-label="Flip card: a small hope">
       <div class="keepsake-inner">
         <div class="keepsake-face keepsake-front">
-          <div class="kf-icon">🌙</div>
           <div class="kf-label">a small hope</div>
           <div class="kf-cue">tap to open</div>
         </div>
+
         <div class="keepsake-face keepsake-back">
-          that this year will be gentle and kind to you.
+          I hope this year is gentle and kind to you.
         </div>
       </div>
     </div>
 
-    <div class="keepsake-card" data-card="3" tabindex="0" role="button" aria-label="Flip card: an open door">
+    <!-- Card 3 -->
+    <div class="keepsake-card" data-card="3" tabindex="0" role="button" aria-label="Flip card: confession">
       <div class="keepsake-inner">
         <div class="keepsake-face keepsake-front">
-          <div class="kf-icon">💬</div>
-          <div class="kf-label">an open door</div>
+          <div class="kf-label">confession</div>
           <div class="kf-cue">tap to open</div>
         </div>
+
         <div class="keepsake-face keepsake-back">
-          I don't know you well yet, but I'd like to get to know you a little.
+          Daghan na kog pending Cdramas tungod nimo. But honestly, I'm not complaining HAHAHAH
         </div>
       </div>
     </div>
+
   </div>
 </section>
 
@@ -890,11 +1028,17 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
 ===================================================== -->
 <section class="closing" id="closingSection">
   <div class="closing-card glass-card reveal" id="closingCard">
-    <h3>Happy Birthday, again 🌸</h3>
-    <div class="balloon-row"><span>🎈</span><span>🌿</span><span>✨</span><span>🎂</span></div>
+    <div class="pressed-flower" aria-hidden="true">
+      <span class="petal p1"></span><span class="petal p2"></span><span class="petal p3"></span>
+      <span class="petal p4"></span><span class="petal p5"></span>
+      <span class="center"></span>
+    </div>
+    <h3>That's all.</h3>
+    <p>Thanks for spending a few minutes of your time. I hope today treats you kindly. Happy Birthday!</p>
   </div>
 </section>
 
+<footer class="site-footer">Made with HTML, CSS, JavaScript, and a little courage to finally send this to you. — Janmar</footer>
 <!-- =====================================================
      PHOTO LIGHTBOX
 ===================================================== -->
@@ -917,12 +1061,49 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
     <button class="lb-arrow lb-next" id="lbNext" aria-label="Next photo">›</button>
   </div>
   <div class="lb-footer">
+    <div class="lb-caption" id="lbCaption"></div>
     <div class="lb-dots" id="lbDots"></div>
     <div class="lb-counter" id="lbCounter">1 / 4</div>
   </div>
 </div>
 
 <button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+/* =====================================================
+   LOADING SCREEN — petals + 3s minimum display
+===================================================== */
+(function(){
+  const screen = document.getElementById('loadingScreen');
+  const petalHost = document.getElementById('loadingPetals');
+  const symbols = ['🌸','🍃','✨'];
+  const isSmall = window.innerWidth < 600;
+  const count = isSmall ? 10 : 18;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.documentElement.style.overflow = 'hidden';
+
+  if (!reduce){
+    for (let i = 0; i < count; i++){
+      const el = document.createElement('span');
+      el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.fontSize = (0.9 + Math.random() * 1.2) + 'rem';
+      el.style.animationDuration = (2.6 + Math.random() * 2) + 's';
+      el.style.animationDelay = (Math.random() * 1.4) + 's';
+      petalHost.appendChild(el);
+    }
+  }
+
+  function hideLoader(){
+    screen.classList.add('fade-out');
+    document.documentElement.style.overflow = '';
+    setTimeout(() => { screen.remove(); }, 750);
+  }
+
+  setTimeout(hideLoader, reduce ? 900 : 4000);
+})();
+</script>
 
 <script>
 /* =====================================================
@@ -940,10 +1121,19 @@ function showPlaceholder(imgEl){
    Photo lightbox
 ===================================================== */
 const photoSrcs = ['photos/photo1.jpg','photos/photo2.jpg','photos/photo3.jpg','photos/photo4.jpg'];
+/* 👉 Write a little caption for each photo here — same order as photoSrcs above.
+   Leave any entry as an empty string '' if you don't want a caption on that one. */
+const photoCaptions = [
+  'Hays no words can explain, nindot kaayo.',
+  'That was really thoughtful of your brother :)',
+  'I believe sa gingoog ni? I Always wanted to visit that place.',
+  'You looked genuinely happy diri. nya nag libog ko if kinsa jud mas cute sa duha HAHAHAHAH'
+];
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lbImg');
 const lbPlaceholder = document.getElementById('lbPlaceholder');
 const lbPlaceholderName = document.getElementById('lbPlaceholderName');
+const lbCaption = document.getElementById('lbCaption');
 const lbDots = document.getElementById('lbDots');
 const lbCounter = document.getElementById('lbCounter');
 let lbIndex = 0;
@@ -978,6 +1168,7 @@ function spawnHearts(){
 function updateLbUI(){
   lbDotEls.forEach((d, i) => d.classList.toggle('active', i === lbIndex));
   lbCounter.textContent = (lbIndex + 1) + ' / ' + photoSrcs.length;
+  lbCaption.textContent = photoCaptions[lbIndex] || '';
 }
 function showLbPhoto(direction){
   if (direction){
@@ -1262,7 +1453,7 @@ I hope this year brings you good Cdramas, good Kdramas, good food, good friends,
 
 I hope we get the chance to talk about Cdramas, Kdramas, or literally anything at all someday. I'd love to get to know you a little, but only if you're comfortable with that.
 
-Happy Birthday again.`;
+Happy Birthday once again. I hope you have a wonderful day.`;
 
 const letterBody = document.getElementById('letterBody');
 const letterSignoff = document.getElementById('letterSignoff');
