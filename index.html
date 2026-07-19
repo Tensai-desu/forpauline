@@ -476,9 +476,8 @@ section{ position:relative; z-index:3; }
   opacity:0; animation: fadeUp 1s ease forwards 1.25s;
 }
 
-/* ---- tilted polaroid photo stack — sits above and to the right of
-   "Birthday" on desktop. On phones it drops into its own row above the
-   title instead of overlapping it, so nothing gets cramped or hidden. ---- */
+/* ---- hero title wrapper (photo stack now lives in its own section
+   further down, after the keepsake cards) ---- */
 .hero-title-wrap{
   position: relative;
   display: flex;
@@ -487,9 +486,7 @@ section{ position:relative; z-index:3; }
   max-width: min(90vw, 720px);
   margin-top: 8px;
 }
-/* Sits in normal document flow above the headline at every size, so it
-   can never overlap "Happy Birthday [Name]" no matter how wide that
-   text renders. */
+/* Sits in normal document flow, centered in its own section. */
 .photo-stack{
   position: relative;
   width: 150px; height: 216px;
@@ -774,10 +771,18 @@ section{ position:relative; z-index:3; }
   font-family: var(--font-display); font-size: 2.3rem; color: rgba(255,255,255,0.25); line-height: 1;
 }
 /* =====================================================
+   10b. PHOTO MOMENTS
+===================================================== */
+.photo-section{
+  display:flex; flex-direction: column; align-items:center; justify-content:center;
+  padding: 10px 20px 90px; text-align:center;
+}
+.photo-section .eyebrow{ opacity: 1; margin-bottom: 28px; }
+/* =====================================================
    11. SONG SECTION
 ===================================================== */
 .song-section{ display:flex; flex-direction: column; align-items:center; padding: 20px 16px 110px; text-align:center; }
-.song-section .eyebrow{ margin-bottom: 6px; }
+.song-section .eyebrow{ opacity: 1; margin-bottom: 6px; }
 .song-section h2{
   font-family: var(--font-display); font-style: italic; font-weight: 600;
   font-size: clamp(1.5rem, 5vw, 2.4rem); color: var(--forest-deep); margin-bottom: 28px; max-width: 520px;
@@ -893,6 +898,7 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
   <a data-target="hero" aria-label="Hero"></a>
   <a data-target="letterSection" aria-label="Letter"></a>
   <a data-target="keepsakeSection" aria-label="Keepsakes"></a>
+  <a data-target="photoSection" aria-label="Photos"></a>
   <a data-target="songSection" aria-label="Song"></a>
   <a data-target="closingSection" aria-label="Closing"></a>
 </nav>
@@ -936,19 +942,7 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
 ===================================================== -->
 <section class="hero" id="hero">
 
-  <div class="eyebrow">a little something for you</div>
-    <div class="eyebrow">(tap to open)</div>
-
   <div class="hero-title-wrap">
-    <!-- put photo1–4.jpg next to this file in a "photos" folder to fill these in -->
-    <div class="photo-stack" id="photoStack" aria-hidden="false">
-      <div class="polaroid pl1" data-index="0" tabindex="0" role="button" aria-label="View photo 1"><img src="photos/photo1.jpg" alt="A photo of her" data-fallback="photo1.jpg" onerror="showPlaceholder(this)"></div>
-      <div class="polaroid pl2" data-index="1" tabindex="0" role="button" aria-label="View photo 2"><img src="photos/photo2.jpg" alt="A photo of her" data-fallback="photo2.jpg" onerror="showPlaceholder(this)"></div>
-      <div class="polaroid pl3" data-index="2" tabindex="0" role="button" aria-label="View photo 3"><img src="photos/photo3.jpg" alt="A photo of her" data-fallback="photo3.jpg" onerror="showPlaceholder(this)"></div>
-      <div class="polaroid pl4" data-index="3" tabindex="0" role="button" aria-label="View photo 4"><img src="photos/photo4.jpg" alt="A photo of her" data-fallback="photo4.jpg" onerror="showPlaceholder(this)"></div>
-    </div>
-    <div class="stack-hint">A few moments you shared that I thought were really nice.</div>
-
     <h1>Happy Birthday<span class="name">Pauline!</span></h1>
   </div>
 
@@ -1007,7 +1001,7 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
   <div class="sprig-divider"><span class="sprig-dot"></span></div>
 
   <div class="eyebrow">a few small things</div>
-  <h2>A few little notes</h2>
+  <h2>A few things I wanted to say</h2>
   <div class="keepsake-sub">tap a card to open it</div>
 
   <div class="keepsake-grid">
@@ -1021,7 +1015,7 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
         </div>
 
         <div class="keepsake-face keepsake-back">
-          I thought I'd make something a little different instead of just saying, "Happy Birthday."
+          I thought I'd make something different instead of just saying, "Happy Birthday."
         </div>
       </div>
     </div>
@@ -1055,6 +1049,24 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
     </div>
 
   </div>
+</section>
+
+<!-- =====================================================
+     PHOTO MOMENTS
+===================================================== -->
+<section class="photo-section reveal" id="photoSection">
+  <div class="sprig-divider"><span class="sprig-dot"></span></div>
+  <div class="eyebrow">Something for you</div>
+  <div class="eyebrow">tap to open</div>
+
+  <!-- put photo1–4.jpg next to this file in a "photos" folder to fill these in -->
+  <div class="photo-stack" id="photoStack" aria-hidden="false">
+    <div class="polaroid pl1" data-index="0" tabindex="0" role="button" aria-label="View photo 1"><img src="photos/photo1.jpg" alt="A photo of her" data-fallback="photo1.jpg" onerror="showPlaceholder(this)"></div>
+    <div class="polaroid pl2" data-index="1" tabindex="0" role="button" aria-label="View photo 2"><img src="photos/photo2.jpg" alt="A photo of her" data-fallback="photo2.jpg" onerror="showPlaceholder(this)"></div>
+    <div class="polaroid pl3" data-index="2" tabindex="0" role="button" aria-label="View photo 3"><img src="photos/photo3.jpg" alt="A photo of her" data-fallback="photo3.jpg" onerror="showPlaceholder(this)"></div>
+    <div class="polaroid pl4" data-index="3" tabindex="0" role="button" aria-label="View photo 4"><img src="photos/photo4.jpg" alt="A photo of her" data-fallback="photo4.jpg" onerror="showPlaceholder(this)"></div>
+  </div>
+  <div class="stack-hint">A few moments you shared that I thought were really nice.</div>
 </section>
 
 <!-- =====================================================
@@ -1099,7 +1111,8 @@ button:focus-visible, .envelope:focus-visible, .keepsake-card:focus-visible, .po
   </div>
 </section>
 
-<footer class="site-footer">Made with HTML, CSS, JavaScript, and a little courage to finally send this to you. — Janmar</footer>
+<footer class="site-footer">Made with a birthday wish, a little effort, and a little courage to finally send this to you.
+— Janmar</footer>
 <!-- =====================================================
      PHOTO LIGHTBOX
 ===================================================== -->
@@ -1516,7 +1529,7 @@ Today is your birthday, so I made this simple website as a small gift for you.
 
 I hope this year brings you good Cdramas, good Kdramas, good food, good friends, beautiful scenery, and lots of good IG stories. HAHAHA.
 
-I hope we get the chance to talk about Cdramas, Kdramas, or literally anything at all someday. I'd love to get to know you a little, but only if you're comfortable with that.
+I hope we get the chance to talk about Cdramas, Kdramas, or literally anything at all someday. I'd love the chance to get to knnow you, but only if you're comfortable with that.
 
 Happy Birthday once again. I hope you have a wonderful day.`;
 
