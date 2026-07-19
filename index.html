@@ -1578,13 +1578,13 @@ function nudgeLockedEnvelope(){
   envelope.classList.remove('shake');
   void envelope.offsetWidth; // restart animation if tapped repeatedly
   envelope.classList.add('shake');
-  envelopeHint.textContent = 'blow the candles first! 🕯️';
+  envelopeHint.textContent = 'blow the candles in the cake first! 🕯️';
   envelopeHint.classList.remove('warn');
   void envelopeHint.offsetWidth;
   envelopeHint.classList.add('warn');
   clearTimeout(envelopeShakeTimer);
   envelopeShakeTimer = setTimeout(() => {
-    envelopeHint.textContent = 'blow out the candles in the cake first 🕯️';
+    envelopeHint.textContent = 'blow out the candles first 🕯️';
   }, 1800);
 }
 
