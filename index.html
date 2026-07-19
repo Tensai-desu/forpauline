@@ -718,6 +718,15 @@ section{ position:relative; z-index:3; }
 }
 .letter-heading{ text-align:center; font-family: var(--font-hand); font-size: clamp(1.5rem, 4.4vw, 2.3rem); color: var(--forest-deep); margin-bottom: 26px; }
 .letter-body{ font-family: var(--font-hand); font-size: clamp(1.2rem, 2.8vw, 1.55rem); line-height: 1.62; color: var(--ink); white-space: pre-wrap; min-height: 40px; }
+.letter-first-line{ white-space: pre-wrap; }
+.letter-rest{
+  display: block;
+  white-space: pre-wrap;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.letter-rest.show{ opacity: 1; transform: translateY(0); }
 .cursor{ display:inline-block; width:2px; background: var(--forest); margin-left: 2px; animation: blink 0.9s steps(1) infinite; }
 @keyframes blink{ 50%{ opacity:0; } }
 .letter-signoff{ margin-top: 30px; font-family: var(--font-hand); font-size: 1.5rem; color: var(--pink-deep); opacity: 0; transition: opacity 0.8s ease; }
@@ -1520,8 +1529,9 @@ document.querySelectorAll('.cal-cell:not(.empty)').forEach((cell,i)=>{
 /* =====================================================
    letter
 ===================================================== */
-const letterText =
-  `Pauline,
+const letterFirstLine = "Pauline,";
+const letterRestText =
+  `
 
 Today is your birthday, so I made this simple website as a small gift for you.
 
@@ -1540,18 +1550,35 @@ let hasTyped = false;
 function typeLetter(){
   if (hasTyped) return;
   hasTyped = true;
-  let i = 0;
+
+  letterBody.innerHTML = '';
+  const firstLineEl = document.createElement('span');
+  firstLineEl.className = 'letter-first-line';
   const cursor = document.createElement('span');
   cursor.className = 'cursor';
+  const restEl = document.createElement('div');
+  restEl.className = 'letter-rest';
+  restEl.textContent = letterRestText;
+
+  letterBody.appendChild(firstLineEl);
+  letterBody.appendChild(cursor);
+  letterBody.appendChild(restEl);
+
+  // type "Pauline," out slowly, letter by letter, so it's clearly readable as it appears
+  let i = 0;
   function step(){
-    if (i <= letterText.length){
-      letterBody.textContent = letterText.slice(0,i);
-      letterBody.appendChild(cursor);
+    if (i <= letterFirstLine.length){
+      firstLineEl.textContent = letterFirstLine.slice(0, i);
       i++;
-      setTimeout(step, 18 + Math.random()*22);
+      setTimeout(step, 75 + Math.random() * 45);
     } else {
       cursor.remove();
-      letterSignoff.classList.add('show');
+      // the rest of the letter is already fully rendered (immediately readable
+      // in the DOM/for screen readers) — it just fades and slides up into view
+      requestAnimationFrame(() => {
+        restEl.classList.add('show');
+      });
+      setTimeout(() => { letterSignoff.classList.add('show'); }, 500);
     }
   }
   step();
